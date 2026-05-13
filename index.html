@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тест: Описанные и вписанные окружности</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --blue: #2e6db4;
+    --light-blue: #e8f1fb;
+    --green: #1a6b3c;
+    --light-green: #e4f5eb;
+    --gold: #c9962a;
+    --light-gold: #fdf5e4;
+    --red: #c0392b;
+    --light-red: #fdecea;
+    --white: #fafcff;
+    --gray: #8a95a3;
+    --text: #1a2744;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Serif 4', serif;
+    background: var(--navy);
+    min-height: 100vh;
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* Фоновый узор */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(46,109,180,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(26,107,60,0.12) 0%, transparent 50%),
+      radial-gradient(circle at 60% 10%, rgba(201,150,42,0.08) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ШАПКА */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding: 48px 32px 40px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '○';
+    position: absolute;
+    font-size: 320px;
+    color: rgba(255,255,255,0.02);
+    top: -80px; right: -60px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .subject-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+  header p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+  }
+
+  /* ПРОГРЕСС */
+  .progress-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-bottom: 36px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--gold));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* КАРТОЧКА ВОПРОСА */
+  .question-card {
+    background: var(--white);
+    border-radius: 4px;
+    padding: 36px 36px 28px;
+    margin-bottom: 16px;
+    border-top: 4px solid var(--blue);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.4s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .section-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 18px;
+  }
+  .tag-1 { background: #dce8f7; color: var(--navy); }
+  .tag-2 { background: #dceef7; color: #0d4f7a; }
+  .tag-3 { background: #d4edda; color: var(--green); }
+
+  .question-num {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--navy);
+    margin-bottom: 28px;
+  }
+  .formula-inline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    background: var(--light-blue);
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid #c2d9f0;
+    font-size: 17px;
+  }
+
+  /* ВАРИАНТЫ */
+  .options {
+    display: grid;
+    gap: 10px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1.5px solid #dde4ee;
+    border-radius: 3px;
+    background: #fff;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    color: var(--navy);
+    text-align: left;
+    transition: all 0.18s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--blue);
+    transform: scaleY(0);
+    transition: transform 0.18s ease;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--light-blue);
+    transform: translateX(3px);
+  }
+  .option-btn:hover:not(:disabled)::before { transform: scaleY(1); }
+
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--gray);
+    transition: all 0.18s;
+  }
+  .option-btn:hover:not(:disabled) .option-letter {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+  }
+
+  /* Состояния после ответа */
+  .option-btn.correct {
+    border-color: var(--green);
+    background: var(--light-green);
+    cursor: default;
+  }
+  .option-btn.correct::before { background: var(--green); transform: scaleY(1); }
+  .option-btn.correct .option-letter { background: var(--green); border-color: var(--green); color: #fff; }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: var(--light-red);
+    cursor: default;
+    opacity: 0.7;
+  }
+  .option-btn.wrong::before { background: var(--red); transform: scaleY(1); }
+  .option-btn.wrong .option-letter { background: var(--red); border-color: var(--red); color: #fff; }
+
+  .option-btn.show-correct {
+    border-color: var(--green);
+    background: var(--light-green);
+    cursor: default;
+  }
+  .option-btn.show-correct::before { background: var(--green); transform: scaleY(1); }
+  .option-btn.show-correct .option-letter { background: var(--green); border-color: var(--green); color: #fff; }
+
+  .option-btn:disabled { cursor: default; transform: none !important; }
+
+  /* ПОЯСНЕНИЕ */
+  .explanation {
+    margin-top: 18px;
+    padding: 14px 18px;
+    border-radius: 3px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .explanation.correct { background: var(--light-green); border-left: 3px solid var(--green); color: #145a30; }
+  .explanation.wrong   { background: var(--light-red);  border-left: 3px solid var(--red);   color: #922b21; }
+  .explanation.show    { display: block; }
+  .expl-icon { font-size: 16px; margin-right: 6px; }
+
+  /* КНОПКА ДАЛЕЕ */
+  .next-btn {
+    display: none;
+    margin-top: 20px;
+    padding: 13px 32px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .next-btn:hover { background: var(--blue); transform: translateY(-1px); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* РЕЗУЛЬТАТЫ */
+  .results-card {
+    background: var(--white);
+    border-radius: 4px;
+    padding: 48px 36px;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    animation: slideUp 0.5s ease;
+    display: none;
+  }
+  .results-card.show { display: block; }
+  .score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    position: relative;
+  }
+  .score-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 4px solid transparent;
+  }
+  .score-num { font-size: 42px; font-weight: 900; line-height: 1; }
+  .score-total { font-size: 14px; color: var(--gray); }
+  .score-excellent .score-circle { background: var(--light-green); color: var(--green); }
+  .score-excellent .score-circle::before { border-color: var(--green); }
+  .score-good .score-circle { background: var(--light-blue); color: var(--blue); }
+  .score-good .score-circle::before { border-color: var(--blue); }
+  .score-ok .score-circle { background: var(--light-gold); color: var(--gold); }
+  .score-ok .score-circle::before { border-color: var(--gold); }
+  .score-bad .score-circle { background: var(--light-red); color: var(--red); }
+  .score-bad .score-circle::before { border-color: var(--red); }
+
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .results-subtitle { font-size: 15px; color: var(--gray); margin-bottom: 32px; font-style: italic; }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--gray); letter-spacing: 1px; text-transform: uppercase; }
+  .stat-correct .stat-num { color: var(--green); }
+  .stat-wrong .stat-num { color: var(--red); }
+
+  .restart-btn {
+    padding: 14px 40px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .restart-btn:hover { background: var(--blue); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(46,109,180,0.4); }
+
+  .review-list { text-align: left; margin-top: 32px; border-top: 1px solid #eee; padding-top: 24px; }
+  .review-title { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); margin-bottom: 16px; }
+  .review-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .review-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="subject-label">Геометрия · 9 класс</div>
+    <h1>Описанные и вписанные<br>окружности</h1>
+    <p>Проверь свои знания по всем трём разделам</p>
+  </header>
+
+  <div id="quiz-area">
+    <div class="progress-label">
+      <span id="progress-text">Вопрос 1 из 15</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-bar"></div>
+    </div>
+    <div id="question-container"></div>
+  </div>
+
+  <div class="results-card" id="results-card">
+    <div id="score-circle-wrap"></div>
+    <div class="results-title" id="results-title"></div>
+    <div class="results-subtitle" id="results-subtitle"></div>
+    <div class="stats-row">
+      <div class="stat-item stat-correct">
+        <div class="stat-num" id="stat-correct">0</div>
+        <div class="stat-label">Верно</div>
+      </div>
+      <div class="stat-item stat-wrong">
+        <div class="stat-num" id="stat-wrong">0</div>
+        <div class="stat-label">Неверно</div>
+      </div>
+    </div>
+    <button class="restart-btn" onclick="restartQuiz()">Пройти ещё раз</button>
+    <div class="review-list">
+      <div class="review-title">Разбор ошибок</div>
+      <div id="review-items"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  // РАЗДЕЛ 1 — Произвольный треугольник
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Где находится центр вписанной окружности треугольника?",
+    options: [
+      "В точке пересечения биссектрис",
+      "В точке пересечения серединных перпендикуляров",
+      "В точке пересечения медиан",
+      "В точке пересечения высот"
+    ],
+    correct: 0,
+    explanation: "Центр вписанной окружности (инцентр) — точка пересечения биссектрис треугольника."
+  },
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Где находится центр описанной окружности треугольника?",
+    options: [
+      "В точке пересечения биссектрис",
+      "В точке пересечения медиан",
+      "В точке пересечения серединных перпендикуляров к сторонам",
+      "В точке пересечения высот"
+    ],
+    correct: 2,
+    explanation: "Центр описанной окружности (circumcenter) — точка пересечения серединных перпендикуляров к сторонам."
+  },
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Чему равна площадь треугольника, если p — полупериметр, r — радиус вписанной окружности?",
+    options: [
+      "S = r / p",
+      "S = p · r",
+      "S = p + r",
+      "S = p² · r"
+    ],
+    correct: 1,
+    explanation: "S = p · r — базовая формула площади через вписанную окружность, где p — полупериметр."
+  },
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Как выразить радиус вписанной окружности через площадь и полупериметр?",
+    options: [
+      "r = p · S",
+      "r = p / S",
+      "r = S · p",
+      "r = S / p"
+    ],
+    correct: 3,
+    explanation: "Из формулы S = p · r выражаем r = S / p."
+  },
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Чему равен радиус описанной окружности по теореме синусов, если a — сторона, A — противолежащий угол?",
+    options: [
+      "R = a · sin A",
+      "R = a / sin A",
+      "R = a / (2 sin A)",
+      "R = 2a / sin A"
+    ],
+    correct: 2,
+    explanation: "Из теоремы синусов: a / sin A = 2R, значит R = a / (2 sin A)."
+  },
+  {
+    section: 1,
+    sectionName: "Произвольный треугольник",
+    text: "Чему равен радиус описанной окружности через стороны и площадь треугольника?",
+    options: [
+      "R = 4S / (abc)",
+      "R = abc / (2S)",
+      "R = abc / (4S)",
+      "R = ab / (4Sc)"
+    ],
+    correct: 2,
+    explanation: "R = abc / (4S) — формула следует из теоремы синусов и формулы площади через синус угла."
+  },
+  // РАЗДЕЛ 2 — Прямоугольный треугольник
+  {
+    section: 2,
+    sectionName: "Прямоугольный треугольник",
+    text: "Чему равен радиус описанной окружности прямоугольного треугольника с гипотенузой c?",
+    options: [
+      "R = c",
+      "R = c / 2",
+      "R = c / 4",
+      "R = 2c"
+    ],
+    correct: 1,
+    explanation: "R = c/2 — центр описанной окружности лежит на середине гипотенузы, а радиус равен её половине."
+  },
+  {
+    section: 2,
+    sectionName: "Прямоугольный треугольник",
+    text: "Где находится центр окружности, описанной около прямоугольного треугольника?",
+    options: [
+      "В вершине прямого угла",
+      "На середине гипотенузы",
+      "В точке пересечения биссектрис",
+      "На середине большего катета"
+    ],
+    correct: 1,
+    explanation: "Центр описанной окружности прямоугольного треугольника — середина гипотенузы."
+  },
+  {
+    section: 2,
+    sectionName: "Прямоугольный треугольник",
+    text: "Радиус вписанной окружности прямоугольного треугольника с катетами a, b и гипотенузой c равен:",
+    options: [
+      "r = (a + b + c) / 2",
+      "r = (a + b - c) / 2",
+      "r = (a - b + c) / 2",
+      "r = (c - a - b) / 2"
+    ],
+    correct: 1,
+    explanation: "r = (a + b − c) / 2 — формула для вписанной окружности прямоугольного треугольника."
+  },
+  {
+    section: 2,
+    sectionName: "Прямоугольный треугольник",
+    text: "Как записать радиус вписанной окружности прямоугольного треугольника через полупериметр p и гипотенузу c?",
+    options: [
+      "r = p + c",
+      "r = c - p",
+      "r = p - c",
+      "r = p · c"
+    ],
+    correct: 2,
+    explanation: "r = p − c — следствие из формулы r = (a+b−c)/2: так как p = (a+b+c)/2, то r = p − c."
+  },
+  // РАЗДЕЛ 3 — Четырёхугольник
+  {
+    section: 3,
+    sectionName: "Четырёхугольник",
+    text: "Чему равна сумма противоположных углов четырёхугольника, вписанного в окружность?",
+    options: [
+      "90°",
+      "180°",
+      "270°",
+      "360°"
+    ],
+    correct: 1,
+    explanation: "∠A + ∠C = 180° и ∠B + ∠D = 180° — свойство вписанного четырёхугольника."
+  },
+  {
+    section: 3,
+    sectionName: "Четырёхугольник",
+    text: "Около какого параллелограмма можно описать окружность?",
+    options: [
+      "Около любого параллелограмма",
+      "Только около ромба",
+      "Только около прямоугольника",
+      "Только около квадрата"
+    ],
+    correct: 2,
+    explanation: "Около параллелограмма можно описать окружность только если он является прямоугольником."
+  },
+  {
+    section: 3,
+    sectionName: "Четырёхугольник",
+    text: "Каким должен быть ромб, чтобы около него можно было описать окружность?",
+    options: [
+      "Равнобедренным",
+      "Прямоугольным",
+      "Квадратом",
+      "Любым ромбом"
+    ],
+    correct: 2,
+    explanation: "Около ромба можно описать окружность только если он является квадратом."
+  },
+  {
+    section: 3,
+    sectionName: "Четырёхугольник",
+    text: "Каков признак описанного четырёхугольника (в который можно вписать окружность)?",
+    options: [
+      "Противоположные углы равны",
+      "Противоположные стороны равны",
+      "Сумма противоположных сторон равна: AB + CD = BC + DA",
+      "Диагонали перпендикулярны"
+    ],
+    correct: 2,
+    explanation: "AB + CD = BC + DA — это свойство и признак описанного четырёхугольника (в который вписана окружность)."
+  },
+  {
+    section: 3,
+    sectionName: "Четырёхугольник",
+    text: "Формула S = p · r справедлива для...",
+    options: [
+      "Только для треугольника",
+      "Только для правильных многоугольников",
+      "Любого многоугольника, описанного около окружности",
+      "Только для прямоугольного треугольника"
+    ],
+    correct: 2,
+    explanation: "S = p · r работает для любого многоугольника, описанного около окружности (в который вписана окружность), — треугольника, четырёхугольника и других."
+  },
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let results = [];
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+let shuffled = [];
+
+function startQuiz() {
+  shuffled = shuffle(QUESTIONS);
+  current = 0; score = 0; answered = false; results = [];
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('results-card').classList.remove('show');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = shuffled[current];
+  const total = shuffled.length;
+  const pct = Math.round((current / total) * 100);
+
+  document.getElementById('progress-text').textContent = `Вопрос ${current + 1} из ${total}`;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-bar').style.width = pct + '%';
+
+  const tagClass = `tag-${q.section}`;
+  const letters = ['А', 'Б', 'В', 'Г'];
+
+  const html = `
+    <div class="question-card">
+      <span class="section-tag ${tagClass}">Раздел ${q.section} — ${q.sectionName}</span>
+      <div class="question-num">Вопрос ${current + 1}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options" id="options">
+        ${q.options.map((opt, i) => `
+          <button class="option-btn" onclick="selectAnswer(${i})" data-idx="${i}">
+            <span class="option-letter">${letters[i]}</span>
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="explanation" id="explanation"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+        ${current < total - 1 ? 'Следующий вопрос →' : 'Завершить тест →'}
+      </button>
+    </div>
+  `;
+  document.getElementById('question-container').innerHTML = html;
+  answered = false;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = shuffled[current];
+  const isCorrect = idx === q.correct;
+  if (isCorrect) score++;
+
+  results.push({ q, chosen: idx, correct: isCorrect });
+
+  const buttons = document.querySelectorAll('.option-btn');
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    const i = parseInt(btn.dataset.idx);
+    if (i === q.correct) btn.classList.add(isCorrect && i === idx ? 'correct' : 'show-correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+
+  const expl = document.getElementById('explanation');
+  expl.className = `explanation ${isCorrect ? 'correct' : 'wrong'} show`;
+  expl.innerHTML = `<span class="expl-icon">${isCorrect ? '✓' : '✗'}</span> ${q.explanation}`;
+
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffled.length) {
+    showResults();
+  } else {
+    renderQuestion();
+    document.getElementById('question-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-area').style.display = 'none';
+  const card = document.getElementById('results-card');
+  card.classList.add('show');
+
+  const total = shuffled.length;
+  const pct = Math.round((score / total) * 100);
+
+  let grade, subtitle, scoreClass;
+  if (pct >= 87) { grade = "Отлично!"; subtitle = "Материал освоен превосходно"; scoreClass = "score-excellent"; }
+  else if (pct >= 67) { grade = "Хорошо"; subtitle = "Есть небольшие пробелы — повтори ошибки"; scoreClass = "score-good"; }
+  else if (pct >= 47) { grade = "Неплохо"; subtitle = "Стоит повторить материал ещё раз"; scoreClass = "score-ok"; }
+  else { grade = "Нужно повторить"; subtitle = "Вернись к конспекту и попробуй снова"; scoreClass = "score-bad"; }
+
+  card.className = `results-card show ${scoreClass}`;
+
+  document.getElementById('score-circle-wrap').innerHTML = `
+    <div class="score-circle">
+      <div class="score-num">${score}</div>
+      <div class="score-total">из ${total}</div>
+    </div>
+  `;
+  document.getElementById('results-title').textContent = grade;
+  document.getElementById('results-subtitle').textContent = subtitle;
+  document.getElementById('stat-correct').textContent = score;
+  document.getElementById('stat-wrong').textContent = total - score;
+
+  const wrong = results.filter(r => !r.correct);
+  const reviewEl = document.getElementById('review-items');
+  if (wrong.length === 0) {
+    reviewEl.innerHTML = '<div style="color: var(--green); font-size:15px;">Все ответы верны! 🎉</div>';
+  } else {
+    reviewEl.innerHTML = wrong.map(r => `
+      <div class="review-item">
+        <span class="review-icon">✗</span>
+        <div>
+          <div style="font-weight:600; margin-bottom:4px;">${r.q.text}</div>
+          <div style="color:var(--green);">✓ ${r.q.options[r.q.correct]}</div>
+          <div style="color:var(--gray); font-size:13px; margin-top:2px;">${r.q.explanation}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restartQuiz() {
+  startQuiz();
+  document.getElementById('quiz-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+startQuiz();
+</script>
+</body>
+</html>
